@@ -32,6 +32,24 @@ async def setup_socketio_client(sio_mngr: SocketIOManager):
     sio = socketio.AsyncClient()
     
     @sio.event
+    async def connect():
+        logging.info("connected to hub")
+        register_data = {
+            "type": "player",
+            "uid": "p1",
+            "name": "raspi 18 - Bühne vorne links",
+        }
+        await sio.emit('register', register_data)
+
+    @sio.event
+    def connect_error(data):
+        logging.error("connecting to hub failed: " + str(data))
+
+    @sio.event
+    def disconnect():
+        logging.info("disconnected from hub")
+        
+    @sio.event
     async def updated(data):
         # this event is triggered by the hub in order to inform the client that we have new data
         print('message received with ', data)
@@ -48,14 +66,6 @@ async def setup_socketio_client(sio_mngr: SocketIOManager):
         await sio_mngr.sio.emit('pause', data)
     
     await sio.connect('http://localhost:8080')
-    logging.info('connected to zp-hub via socketio')
-
-    register_data = {
-        "type": "player",
-        "uid": "p1",
-        "name": "raspi 18 - Bühne vorne links",
-    }
-    await sio.emit('register', register_data)
 
 
 async def init_app():
