@@ -37,9 +37,7 @@
     
     <script>
       const socket = io("http://localhost:8090");
-      document.getElementById('id').innerHTML=ID;
       function sendMsg() {
-        socket.emit("register", JSON.stringify({'type': 'player', 'name': 'helloWorld', 'uid':'1234235676'}));
         socket.emit("message", "HELLO WORLD");
         document.getElementById('status').innerHTML="clicked";
       }
