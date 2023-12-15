@@ -1,0 +1,5 @@
+[zp-client]
+data-path = "../data"
+web-path = "../frontend"
+log-dir-path = "../log"
+zp-hub-url = "http://localhost:8080"

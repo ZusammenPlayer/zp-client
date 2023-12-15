@@ -1,16 +1,26 @@
 import aiohttp
 from aiohttp import web
-from middlewares import socketio_middleware
+from middlewares import socketio_middleware, config_middleware
 from socketio_manager import SocketIOManager
 import socketio
-import config
 import logging
 import logging.handlers
-import json
+import sys
+import toml
+import web_handler
+import socket
 
 
-def setup_logging():
-    log_file_name = config.log_dir_path + "/zp-client.log"
+def read_conf():
+    file_path = "/opt/zp-client/settings.toml"
+    if len(sys.argv) > 1:
+        file_path = sys.argv[1]
+    with open(file_path, "r") as f:
+        return toml.load(f)
+
+
+def setup_logging(conf):
+    log_file_name = conf['zp-client']['log-dir-path'] + "/zp-client.log"
     formatter = logging.Formatter(
         "[%(levelname)s]%(asctime)s|%(filename)s - %(message)s"
     )
@@ -28,18 +38,17 @@ async def load_data(files_data):
         print("not implemented yet")
 
 
-async def setup_socketio_client(sio_mngr: SocketIOManager):
+async def setup_socketio_client(sio_mngr: SocketIOManager, conf):
     sio = socketio.AsyncClient()
-    
+
     @sio.event
     async def connect():
         logging.info("connected to hub")
         register_data = {
             "type": "player",
-            "uid": "p1",
-            "name": "raspi 18 - Bühne vorne links",
+            "uid": socket.gethostname()
         }
-        await sio.emit('register', register_data)
+        await sio.emit("register", register_data)
 
     @sio.event
     def connect_error(data):
@@ -48,28 +57,32 @@ async def setup_socketio_client(sio_mngr: SocketIOManager):
     @sio.event
     def disconnect():
         logging.info("disconnected from hub")
-        
+
     @sio.event
     async def updated(data):
         # this event is triggered by the hub in order to inform the client that we have new data
-        print('message received with ', data)
-        await sio.emit('player_status', {'response': 'progress or status or download finished'})
-    
+        print("message received with ", data)
+        await sio.emit(
+            "player_status", {"response": "progress or status or download finished"}
+        )
+
     @sio.event
     async def trigger(data):
         logging.info("dispatch hub event to client")
-        await sio_mngr.sio.emit('trigger', data)
-    
+        await sio_mngr.sio.emit("trigger", data)
+
     @sio.event
     async def pause(data):
         logging.info("dispatch hub event to client")
-        await sio_mngr.sio.emit('pause', data)
-    
-    await sio.connect('http://localhost:8080')
+        await sio_mngr.sio.emit("pause", data)
+
+    await sio.connect(conf["zp-client"]["zp-hub-url"])
 
 
 async def init_app():
-    setup_logging()
+    conf = read_conf()
+
+    setup_logging(conf)
 
     # create web application
     app = web.Application()
@@ -78,9 +91,12 @@ async def init_app():
     sio_mngr = SocketIOManager(app)
 
     app.middlewares.append(socketio_middleware(sio_mngr))
+    app.middlewares.append(config_middleware(conf))
 
     # init socketio client for communication with zp-hub
-    await setup_socketio_client(sio_mngr)
+    await setup_socketio_client(sio_mngr, conf)
+
+    web_handler.setup(app, conf)
 
     # setup api handler
     return app

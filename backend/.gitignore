@@ -1,6 +1,6 @@
 projects
-config.py
 db.json
+settings.toml
 
 /data
 /log
