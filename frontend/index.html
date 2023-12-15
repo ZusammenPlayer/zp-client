@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
-    <script src="static/socket.io.js"></script>
-    <script type="text/javascript" src="static/ID.js"></script>
+    <script src="static/js/socket.io.js"></script>
     <style type="text/css">
       #fsVideo {
         width: 100vw;
@@ -90,19 +89,18 @@
       
       socket.on("connect", () => {  
         if(socket.connected){
-          socket.emit("register", {'type': 'player', 'name': 'Raspi Player', 'uid':'zp-raspi-' + ID}); 
           document.getElementById("status").innerHTML="verbunden";
         }else{
           document.getElementById("status").innerHTML="nicht verbunden";
         }
-      }); // true});
+      });
       socket.on("disconnect", () => {  
         if(socket.connected){
           document.getElementById("status").innerHTML="verbunden";
         }else{
           document.getElementById("status").innerHTML="nicht verbunden";
         }
-      }); // false});
+      }); 
     </script>
   </body>
 </html>
