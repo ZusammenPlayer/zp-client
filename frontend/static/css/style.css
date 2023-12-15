@@ -1,0 +1,102 @@
+@font-face {
+    font-family: "SuperDuper";
+    src: url("../../gfx/fonts/AH_SuperDuper/AH_SuperDuper-Bold.otf");
+    font-weight: 600;
+  }
+
+/* latin-ext */
+@font-face {
+    font-family: 'Recursive';
+    font-style: oblique 6deg;
+    font-weight: 300 1000;
+    src: url(../fonts/recursive/8vIk7wMr0mhh-RQChyHEH06TlXhq_gukbQr6Mk1QuAIcyEwG_X-dm23YO1ysrvuO1SM.woff2) format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+    font-family: 'Recursive';
+    font-style: oblique 6deg;
+    font-weight: 300 1000;
+    src: url(../fonts/recursive/8vIk7wMr0mhh-RQChyHEH06TlXhq_gukbQr6Mk1QuAIcyEwG_X-dm23WO1ysrvuO.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+:root {
+    --fontWeightBold: 900;
+    --blur: 0px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(0, 0, 0);
+    overflow: hidden;
+}
+
+#txt {
+    width: 30vw;
+    height: 80vh;
+    /* background: linear-gradient(red, #ff9988); */
+    background: #ff9988;
+    font-size: 2em;
+    line-height: 2.3em;
+    color: #333;
+    text-align: center;
+    font-family: "Recursive";
+    padding: 4em 0.4em 6em 0.4em;
+    overflow: hidden;
+}
+
+#txtul, #txtur {
+    color: #fff;
+    position:absolute;
+    bottom: 2vw;
+    font-family: "Recursive";
+    font-weight: 300;
+    border: 1px solid #fff;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+#txtul {
+    left: 34vw;
+}
+
+#txtur {
+    right: 34vw;
+}
+
+.chr {
+    filter: blur(var(--blur));
+    font-weight: var(--fontWeightBold);
+    color: #e0b7af;
+    text-shadow: 0 1px 0 #990000, 0 2px 0 #880000,
+             0 3px 0 #883300, 0 4px 0 #663300,
+             0 5px 0 #660000, 0 6px 0 #550000,
+             0 7px 0 #440000, 0 8px 7px rgba(0, 0, 0, 0.1),
+             0 9px 10px rgba(0, 0, 0, 0.4); 
+    /* text-shadow: 0 1px 0 #003366, 0 2px 0 #003366,
+    0 3px 0 #003366, 0 4px 0 #003366,
+    0 5px 0 #003366, 0 6px 0 #003366, 
+    0 7px 0 #330033, 0 8px 7px rgba(0, 0, 0, 0.4),
+    0 9px 10px rgba(0, 0, 0, 0.2); */
+}
+
+@media only screen 
+and (orientation : portrait) {
+    #txt {
+        width: 100vw;
+    }
+
+    #txtul{
+        left: 2vw
+    } 
+
+    #txtur{
+        right: 2vw
+    } 
+
+}

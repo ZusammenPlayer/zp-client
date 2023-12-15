@@ -1,0 +1,108 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="static/socket.io.js"></script>
+    <script type="text/javascript" src="static/ID.js"></script>
+    <style type="text/css">
+      #fsVideo {
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <button onClick="sendMsg()">Hit Me</button>
+    <div id="status"></div>
+    <div id="message"></div>
+    <div id="id"></div>
+    <div id="fsVideo">
+      <video id="videoPlayer" width="100%" height="100%" controls>
+        <source src="vid/GB.mp4" type="video/mp4">
+        
+      Your browser does not support the video tag.
+      </video> 
+    </div>
+    
+    <script>
+      const socket = io("http://localhost:8090");
+      document.getElementById('id').innerHTML=ID;
+      function sendMsg() {
+        socket.emit("register", JSON.stringify({'type': 'player', 'name': 'helloWorld', 'uid':'1234235676'}));
+        socket.emit("message", "HELLO WORLD");
+        document.getElementById('status').innerHTML="clicked";
+      }
+      socket.on("message", (data) => { console.log(data);});
+      socket.on("color", (data) => { 
+        if(data['R'] == ID | data['R'] == 'a'){
+          document.body.style.backgroundColor = '#'+data['c'];
+          let videoLayer = document.getElementById('fsVideo'); 
+          videoLayer.style.display = 'none';
+        }
+        console.log(data);
+      
+      });
+      socket.on("video", (data) => { 
+        console.log(data.play);
+        if(data.R == ID | data.R == 'a'){
+          let videoPlayer = document.getElementById('videoPlayer'); 
+          let videoLayer = document.getElementById('fsVideo'); 
+          if(typeof data.v != 'undefined')
+            videoPlayer.src = data['v'];
+          if(typeof data.play != 'undefined'){
+            videoLayer.style.display = 'block';
+            if(data.play == 1){
+              console.log('play');
+              videoPlayer.play();
+            }
+            else if (data.play == 0)
+              videoPlayer.pause();
+          }
+          if(typeof data.pos != 'undefined'){
+              videoPlayer.currentTime = data.pos;
+          }
+          if(typeof data.vis != 'undefined'){
+            if(data.vis == 0)
+              videoLayer.style.display = 'none';
+            else
+              videoLayer.style.display = 'block';
+          }
+        }
+        console.log(data);
+      
+      });
+
+      socket.on("trigger", (data) => {
+        console.log(data);
+      })
+      
+      socket.on("connect", () => {  
+        if(socket.connected){
+          socket.emit("register", {'type': 'player', 'name': 'Raspi Player', 'uid':'zp-raspi-' + ID}); 
+          document.getElementById("status").innerHTML="verbunden";
+        }else{
+          document.getElementById("status").innerHTML="nicht verbunden";
+        }
+      }); // true});
+      socket.on("disconnect", () => {  
+        if(socket.connected){
+          document.getElementById("status").innerHTML="verbunden";
+        }else{
+          document.getElementById("status").innerHTML="nicht verbunden";
+        }
+      }); // false});
+    </script>
+  </body>
+</html>
