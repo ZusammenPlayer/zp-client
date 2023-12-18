@@ -9,6 +9,7 @@ import sys
 import toml
 import web_handler
 import socket
+import time
 
 
 def read_conf():
@@ -20,7 +21,7 @@ def read_conf():
 
 
 def setup_logging(conf):
-    log_file_name = conf['zp-client']['log-dir-path'] + "/zp-client.log"
+    log_file_name = conf["zp-client"]["log-dir-path"] + "/zp-client.log"
     formatter = logging.Formatter(
         "[%(levelname)s]%(asctime)s|%(filename)s - %(message)s"
     )
@@ -35,7 +36,9 @@ async def load_data(files_data):
     async with aiohttp.ClientSession() as session:
         # load current list of files
         # check with files_data and determine which files to download
-        print("not implemented yet")
+        logging.info("not implemented yet")
+        # simulate some delay until load data is implemented
+        time.sleep(5)
 
 
 async def setup_socketio_client(sio_mngr: SocketIOManager, conf):
@@ -46,7 +49,8 @@ async def setup_socketio_client(sio_mngr: SocketIOManager, conf):
         logging.info("connected to hub")
         register_data = {
             "type": "player",
-            "uid": socket.gethostname()
+            "uid": "p1",  # socket.gethostname(),
+            "status": "ready",
         }
         await sio.emit("register", register_data)
 
@@ -65,6 +69,13 @@ async def setup_socketio_client(sio_mngr: SocketIOManager, conf):
         await sio.emit(
             "player_status", {"response": "progress or status or download finished"}
         )
+
+    @sio.event
+    async def file_sync(data):
+        logging.info("file sync event for project: " + data["project"]["name"])
+        await sio.emit("device_status", {"status": "syncing"})
+        await load_data(data["media"])
+        await sio.emit("device_status", {"status": "ready"})
 
     @sio.event
     async def trigger(data):
