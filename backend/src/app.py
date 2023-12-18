@@ -49,7 +49,7 @@ async def setup_socketio_client(sio_mngr: SocketIOManager, conf):
         logging.info("connected to hub")
         register_data = {
             "type": "player",
-            "uid": "p1",  # socket.gethostname(),
+            "uid": socket.gethostname(),
             "status": "ready",
         }
         await sio.emit("register", register_data)
