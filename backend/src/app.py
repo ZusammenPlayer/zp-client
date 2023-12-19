@@ -63,7 +63,7 @@ async def load_data(file_sync_data, conf):
         db_files = [item for row in db_files for item in row]
 
         async with aiohttp.ClientSession() as session:
-            for f in db_files:
+            for f in files_to_download:
                 download_url = conf["zp-client"]["zp-hub-url"] + "/api/project/" + file_sync_data["project_id"] + "/" + f["filename"]
                 async with session.get(download_url) as response:
                     binary_data = await response.read()
