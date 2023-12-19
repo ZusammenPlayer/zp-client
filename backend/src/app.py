@@ -9,7 +9,8 @@ import sys
 import toml
 import web_handler
 import socket
-import time
+import json
+import os
 
 
 def read_conf():
@@ -32,13 +33,48 @@ def setup_logging(conf):
     logger.setLevel(logging.INFO)
 
 
-async def load_data(files_data):
-    async with aiohttp.ClientSession() as session:
-        # load current list of files
-        # check with files_data and determine which files to download
-        logging.info("not implemented yet")
-        # simulate some delay until load data is implemented
-        time.sleep(5)
+async def load_data(file_sync_data, conf):
+    db_file_path = conf["zp-client"]["data-path"] + "/db.json"
+
+    # check if database file exists otherwise create one
+    if not os.path.exists(db_file_path):
+        logging.info("database does not exist. Create one now.")
+        with open(db_file_path, "w") as outfile:
+            db = {"version": 1, "media": []}
+            outfile.write(json.dumps(db))
+            logging.info("zp-client database file created")
+
+    db_files = []
+
+    with open(db_file_path, "r") as db_file:
+        db = json.load(db_file)
+        media = db["media"]
+
+        files_to_download = []
+        for file_data in file_sync_data["media"]:
+            existing_file = next((f for f in media if f["md5"] == file_data["md5"]), None)
+            if existing_file is None:
+                files_to_download.append(file_data)
+        
+        db_files.append(media)
+        db_files.append(files_to_download)
+        
+        # flatten list of lists
+        db_files = [item for row in db_files for item in row]
+
+        async with aiohttp.ClientSession() as session:
+            for f in db_files:
+                download_url = conf["zp-client"]["zp-hub-url"] + "/api/project/" + file_sync_data["project_id"] + "/" + f["filename"]
+                async with session.get(download_url) as response:
+                    binary_data = await response.read()
+                    new_file_path = conf["zp-client"]["data-path"] + "/" + f["filename"]
+                    with open(new_file_path, "wb") as media_file:
+                        media_file.write(binary_data)
+
+    with open(db_file_path, "w") as outfile:
+        db = {"version": 1, "media": db_files}
+        outfile.write(json.dumps(db))
+        logging.info("zp-client database file updated")
 
 
 async def setup_socketio_client(sio_mngr: SocketIOManager, conf):
@@ -72,9 +108,9 @@ async def setup_socketio_client(sio_mngr: SocketIOManager, conf):
 
     @sio.event
     async def file_sync(data):
-        logging.info("file sync event for project: " + data["project"]["name"])
+        logging.info("file sync event for project: " + data["project_id"])
         await sio.emit("device_status", {"status": "syncing"})
-        await load_data(data["media"])
+        await load_data(data, conf)
         await sio.emit("device_status", {"status": "ready"})
 
     @sio.event
