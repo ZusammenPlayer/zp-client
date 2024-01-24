@@ -126,14 +126,14 @@
             if(dataComponents[0] == "play"){
                 imageLayer.style.display = 'none';
                 
-                videoPlayer.src = "http://localhost:8090/file/" + dataComponents[1];
+                videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
                 videoLayer.style.display = 'block';
                 videoPlayer.play();
             } else if(dataComponents[0] == "show"){
                 videoLayer.style.display = 'none';
                 imageLayer.style.display = 'block';
                 
-                imageLayer.style.backgroundImage="url('" + "http://localhost:8090/file/" + dataComponents[1] + "')";
+                imageLayer.style.backgroundImage="url('" + "http://localhost:8090/media/file/" + dataComponents[1] + "')";
                 
             } else if(dataComponents[0] == "bg"){
                 videoLayer.style.display = 'none';
