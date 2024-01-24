@@ -1,6 +1,7 @@
 projects
 db.json
 settings.toml
+/releases
 
 /data
 /log
