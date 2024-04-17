@@ -14,7 +14,8 @@ import os
 
 
 def read_conf():
-    file_path = "/opt/zp-client/settings.toml"
+    #file_path = "/opt/zp-client/settings.toml"
+    file_path = "../settings.toml"
     if len(sys.argv) > 1:
         file_path = sys.argv[1]
     with open(file_path, "r") as f:

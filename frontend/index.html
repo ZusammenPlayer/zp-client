@@ -31,6 +31,10 @@
         left: -0.1vw;
         z-index: 2000;
         display: none;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: 100% 100%;
+        background-image: url('static/media/logo_bg.png');
       }
       body{
         overflow:hidden;
@@ -43,8 +47,8 @@
     <div id="message"></div>
     <div id="id"></div>
     <div id="fsVideo">
-      <video id="videoPlayer" width="100%" height="100%" no-controls loop>
-        <source src="http://localhost:8090/media/file/test.mp4" type="video/mp4">
+      <video id="videoPlayer" width="100%" height="100%" no-controls loop preload="auto">
+        <source src="static/media/black.mp4" type="video/mp4">
         
       Your browser does not support the video tag.
       </video> 
@@ -65,55 +69,7 @@
         socket.emit("message", "HELLO WORLD");
         document.getElementById('status').innerHTML="clicked";
       }
-      socket.on("message", (data) => { console.log(data);});
-      socket.on("color", (data) => { 
-        if(data['R'] == ID | data['R'] == 'a'){
-          document.body.style.backgroundColor = '#'+data['c'];
-          let videoLayer = document.getElementById('fsVideo'); 
-          videoLayer.style.display = 'none';
-        }
-        console.log(data);
       
-      });
-      socket.on("video", (data) => { 
-        console.log(data.play);
-        if(data.R == ID | data.R == 'a'){
-          let videoPlayer = document.getElementById('videoPlayer'); 
-          let videoLayer = document.getElementById('fsVideo'); 
-          if(typeof data.v != 'undefined')
-            videoPlayer.src = data['v'];
-          if(typeof data.play != 'undefined'){
-            videoLayer.style.display = 'block';
-            if(data.play == 1){
-              console.log('play');
-              videoPlayer.play();
-            }
-            else if (data.play == 0)
-              videoPlayer.pause();
-          }
-          if(typeof data.pos != 'undefined'){
-              videoPlayer.currentTime = data.pos;
-          }
-          if(typeof data.vis != 'undefined'){
-            if(data.vis == 0)
-              videoLayer.style.display = 'none';
-            else
-              videoLayer.style.display = 'block';
-          }
-        }
-        console.log(data);
-      
-      });
-      socket.on("pause", (data) => {
-        let videoPlayer = document.getElementById('videoPlayer'); 
-        if (videoPlayer.paused) {
-            videoPlayer.play(); 
-        }
-        else { 
-            videoPlayer.pause(); 
-        } 
-      })
-
       socket.on("trigger", (data) => {
         console.log(data);
         if(typeof data !== "undefined"){
@@ -121,14 +77,25 @@
             let videoPlayer = document.getElementById('videoPlayer'); 
             let videoLayer = document.getElementById('fsVideo'); 
             let imageLayer = document.getElementById('fsImage'); 
+            document.getElementById('status').style.display = 'none'; 
+
                 
-            if(dataComponents[0] == "play"){
+            if(dataComponents[0] == "playFile"){
                 imageLayer.style.display = 'none';
                 
                 videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
                 videoLayer.style.display = 'block';
                 videoPlayer.play();
-            } else if(dataComponents[0] == "show"){
+              } else if(dataComponents[0] == "preloadFile"){
+                videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
+              }  else if(dataComponents[0] == "play"){
+                videoPlayer.play();
+              }  else if(dataComponents[0] == "playVid"){
+                videoLayer.style.display = 'block';
+                videoPlayer.play();
+              } else if(dataComponents[0] == "pause"){
+                videoPlayer.pause();
+              } else if(dataComponents[0] == "show"){
                 videoLayer.style.display = 'none';
                 imageLayer.style.display = 'block';
                 
@@ -139,7 +106,21 @@
                 imageLayer.style.display = 'none';
                 
                 document.body.style.backgroundColor = dataComponents[1];
+
+            } else if(dataComponents[0] == "view"){
+                if(dataComponents[1] == 'bg'){
+                  videoLayer.style.display = 'none';
+                  imageLayer.style.display = 'none';
+                } else if (dataComponents[1] == 'video'){
+                  videoLayer.style.display = 'block';
+                  imageLayer.style.display = 'none';
+                } else if (dataComponents[1] == 'image'){
+                  videoLayer.style.display = 'none';
+                  imageLayer.style.display = 'block';
+                } 
+                
             }
+
         }
       })
       
