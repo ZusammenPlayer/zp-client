@@ -12,7 +12,6 @@ import socket
 import json
 import os
 
-
 def read_conf():
     #file_path = "/opt/zp-client/settings.toml"
     file_path = "../settings.toml"
