@@ -33,3 +33,9 @@ We have defined several directories where we store project relevant files and pa
   - create folder `backend`: `$mkdir /opt/zp-client/backend`
   - create folder `releases`: `$mkdir /opt/zp-client/backend/releeases`
   - copy the latest release of zp-client to releases folder
+
+
+**OverlayFS**
+
+to activate OverlayFS for root but not DATA partition add `overlayroot=tmpfs:swap=1,recurse=0,exclude=/DATA` to /boot/cmdline.txt
+this activates OverlayFS always - it can't be switched by raspi-config anymore. To deactivate it delete these commands.
