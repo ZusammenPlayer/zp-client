@@ -69,7 +69,12 @@
         socket.emit("message", "HELLO WORLD");
         document.getElementById('status').innerHTML="clicked";
       }
-      
+      socket.on("pause", (data) => {
+        console.log(data);
+        let videoPlayer = document.getElementById('videoPlayer'); 
+        videoPlayer.pause();
+      });
+
       socket.on("trigger", (data) => {
         console.log(data);
         if(typeof data !== "undefined"){
