@@ -91,6 +91,7 @@
               }  else if(dataComponents[0] == "play"){
                 videoPlayer.play();
               }  else if(dataComponents[0] == "playVid"){
+                videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
                 videoLayer.style.display = 'block';
                 imageLayer.style.display = 'none';
                 videoPlayer.play();
