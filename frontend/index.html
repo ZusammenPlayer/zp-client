@@ -98,9 +98,10 @@
             videoLayer.style.display = 'block';
             videoPlayer.play();
           } else if(dataComponents[0] == "preloadFile"){
-            videoPlayer.stop();
             videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
-          }  else if(dataComponents[0] == "play"){
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0.1;
+          } else if(dataComponents[0] == "play"){
             videoPlayer.play();
           }  else if(dataComponents[0] == "playVid"){
             videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
