@@ -6,6 +6,8 @@ settings.toml
 /data
 /log
 
+start.sh
+
 .DS_Store
 
 
