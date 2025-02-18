@@ -70,12 +70,7 @@
     <div id="status"></div>
     <div id="message"></div>
     <div id="id"></div>
-    <div id="fsVideo">
-      <video id="videoPlayer" width="100%" height="100%" no-controls preload="auto">
-        <source src="static/media/black.mp4" type="video/mp4">      
-        Your browser does not support the video tag.
-      </video> 
-    </div>
+    
     <div id="fsVideo1">
       <video id="videoPlayer1" width="100%" height="100%" no-controls preload="auto">
         <source src="static/media/black.mp4" type="video/mp4">
@@ -96,6 +91,14 @@
       const socket = io("http://localhost:8090");
 
       let currentPlayer = 1;
+      let videoPlayer1 = document.getElementById('videoPlayer1'); 
+      let videoPlayer2 = document.getElementById('videoPlayer2'); 
+      let videoLayer1 = document.getElementById('fsVideo1'); 
+      let videoLayer2 = document.getElementById('fsVideo2'); 
+      let imageLayer = document.getElementById('fsImage'); 
+
+      videoPlayer1.volume = 1.0; 
+      videoPlayer2.volume = 1.0; 
 
       if(typeof(ID) != 'undefined'){
         document.getElementById('id').innerHTML=ID;
@@ -107,44 +110,36 @@
       }
       socket.on("pause", (data) => {
         console.log(data);
-        let videoPlayer = document.getElementById('videoPlayer'); 
-        videoPlayer.pause();
+        videoPlayer1.pause();
+        videoPlayer2.pause();
       });
 
       socket.on("trigger", (data) => {
         console.log(data);
         if(typeof data !== "undefined"){
           let dataComponents = data.split(" ");
-          let videoPlayer = document.getElementById('videoPlayer'); 
-          let videoPlayer1 = document.getElementById('videoPlayer1'); 
-          let videoPlayer2 = document.getElementById('videoPlayer2'); 
-          let videoLayer = document.getElementById('fsVideo'); 
-          let videoLayer1 = document.getElementById('fsVideo1'); 
-          let videoLayer2 = document.getElementById('fsVideo2'); 
-          let imageLayer = document.getElementById('fsImage'); 
-          videoPlayer.volume = 1.0; 
+          
           document.getElementById('status').style.display = 'none'; 
   
           if(dataComponents[0] == "playFile"){
+            // not used right now
+            videoLayer1.style.display = 'none';
+            videoLayer2.style.display = 'none';
             imageLayer.style.display = 'none';
-            videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
-            videoLayer.style.display = 'block';
-            videoPlayer.play();
+            
+            document.body.style.backgroundColor = '#ff0000';
+
           } else if(dataComponents[0] == "preloadVid"){
             if(currentPlayer == 1){
               videoPlayer2.src = "http://localhost:8090/media/file/" + dataComponents[1];
               videoPlayer2.pause();
               videoPlayer2.currentTime = 1;
-              currentPlayer = 2;
             } else {
               videoPlayer1.src = "http://localhost:8090/media/file/" + dataComponents[1];
               videoPlayer1.pause();
               videoPlayer1.currentTime = 1;
-              currentPlayer = 1;
             }
-            // videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
-            // videoPlayer.pause();
-            // videoPlayer.currentTime = 1;
+
           } else if(dataComponents[0] == "play"){
             if(currentPlayer == 1){
               videoPlayer2.loop = false;
@@ -163,15 +158,20 @@
               imageLayer.style.display = 'none';
               currentPlayer = 1;
             }
-            // videoPlayer.loop = false;
-            // videoPlayer.play();
-          } else if(dataComponents[0] == "onlyPlay"){  
+
+          } else if(dataComponents[0] == "playVid"){  
             if(currentPlayer == 1){
               if(videoPlayer1.src == "http://localhost:8090/media/file/" + dataComponents[1]){
                 videoPlayer1.currentTime = 0;
                 videoPlayer1.loop = false;
+                videoLayer1.style.display = 'block';
+                videoLayer2.style.display = 'none';
+                imageLayer.style.display = 'none';
                 videoPlayer1.play();
               } else {
+                if(videoPlayer2.src != "http://localhost:8090/media/file/" + dataComponents[1]){
+                  videoPlayer2.src = "http://localhost:8090/media/file/" + dataComponents[1];
+                }
                 videoPlayer2.loop = false;
                 videoPlayer1.pause();
                 videoPlayer2.play();
@@ -184,8 +184,14 @@
               if(videoPlayer2.src == "http://localhost:8090/media/file/" + dataComponents[1]){
                 videoPlayer2.currentTime = 0;
                 videoPlayer2.loop = false;
+                videoLayer2.style.display = 'block';
+                videoLayer1.style.display = 'none';
+                imageLayer.style.display = 'none';
                 videoPlayer2.play();
               } else {
+                if(videoPlayer1.src != "http://localhost:8090/media/file/" + dataComponents[1]){
+                  videoPlayer1.src = "http://localhost:8090/media/file/" + dataComponents[1];
+                }
                 videoPlayer1.loop = false;
                 videoPlayer2.pause();
                 videoPlayer1.play();
@@ -195,96 +201,53 @@
                 currentPlayer = 1;
               }
             }
-            // videoPlayer.loop = false;
-            // videoPlayer.play();
-          } else if(dataComponents[0] == "playLoop"){
-            if(currentPlayer == 1){
-              if(videoPlayer1.src == "http://localhost:8090/media/file/" + dataComponents[1]){
-                videoPlayer1.currentTime = 0;
-                videoPlayer1.loop = true;
-                videoPlayer1.play();
-              } else {
-                videoPlayer2.loop = true;
-                videoPlayer1.pause();
-                videoPlayer2.play();
-                videoLayer2.style.display = 'block';
-                videoLayer1.style.display = 'none';
-                imageLayer.style.display = 'none';
-                currentPlayer = 2;
-              }
-            } else {
-              if(videoPlayer2.src == "http://localhost:8090/media/file/" + dataComponents[1]){
-                videoPlayer2.currentTime = 0;
-                videoPlayer2.loop = true;
-                videoPlayer2.play();
-              } else {
-                videoPlayer1.loop = true;
-                videoPlayer2.pause();
-                videoPlayer1.play();
-                videoLayer1.style.display = 'block';
-                videoLayer2.style.display = 'none';
-                imageLayer.style.display = 'none';
-                currentPlayer = 1;
-              }
-            }
-            // videoPlayer.loop = true;
-            // videoPlayer.play();
-          } else if(dataComponents[0] == "playVid"){
-            if(currentPlayer == 1){
-              videoPlayer2.src = "http://localhost:8090/media/file/" + dataComponents[1];
-              videoPlayer2.loop = false;
-              videoPlayer1.pause();
-              videoPlayer2.play();
-              videoLayer2.style.display = 'block';
-              videoLayer1.style.display = 'none';
-              imageLayer.style.display = 'none';
-              currentPlayer = 2;
-            } else {
-              videoPlayer1.src = "http://localhost:8090/media/file/" + dataComponents[1];
-              videoPlayer1.loop = false;
-              videoPlayer2.pause();
-              videoPlayer1.play();
-              videoLayer1.style.display = 'block';
-              videoLayer2.style.display = 'none';
-              imageLayer.style.display = 'none';
-              currentPlayer = 1;
-            }
-            // videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
-            // videoLayer.style.display = 'block';
-            // imageLayer.style.display = 'none';
-            // videoPlayer.loop = false;
-            // videoPlayer.play();
+
           } else if(dataComponents[0] == "playVidLoop"){
             if(currentPlayer == 1){
-              videoPlayer2.src = "http://localhost:8090/media/file/" + dataComponents[1];
-              videoPlayer2.loop = true;
-              videoPlayer1.pause();
-              videoPlayer2.play();
-              videoLayer2.style.display = 'block';
-              videoLayer1.style.display = 'none';
-              imageLayer.style.display = 'none';
-              currentPlayer = 2;
+              if(videoPlayer1.src == "http://localhost:8090/media/file/" + dataComponents[1]){
+                videoPlayer1.currentTime = 0;
+                videoPlayer1.loop = true;
+                videoLayer1.style.display = 'block';
+                videoLayer2.style.display = 'none';
+                imageLayer.style.display = 'none';
+                videoPlayer1.play();
+              } else {
+                if(videoPlayer2.src != "http://localhost:8090/media/file/" + dataComponents[1]){
+                  videoPlayer2.src = "http://localhost:8090/media/file/" + dataComponents[1];
+                }
+                videoPlayer2.loop = true;
+                videoPlayer1.pause();
+                videoPlayer2.play();
+                videoLayer2.style.display = 'block';
+                videoLayer1.style.display = 'none';
+                imageLayer.style.display = 'none';
+                currentPlayer = 2;
+              }
             } else {
-              videoPlayer1.src = "http://localhost:8090/media/file/" + dataComponents[1];
-              videoPlayer1.loop = true;
-              videoPlayer2.pause();
-              videoPlayer1.play();
-              videoLayer1.style.display = 'block';
-              videoLayer2.style.display = 'none';
-              imageLayer.style.display = 'none';
-              currentPlayer = 1;
+              if(videoPlayer2.src == "http://localhost:8090/media/file/" + dataComponents[1]){
+                videoPlayer2.currentTime = 0;
+                videoPlayer2.loop = true;
+                videoLayer2.style.display = 'block';
+                videoLayer1.style.display = 'none';
+                imageLayer.style.display = 'none';
+                videoPlayer2.play();
+              } else {
+                if(videoPlayer1.src != "http://localhost:8090/media/file/" + dataComponents[1]){
+                  videoPlayer1.src = "http://localhost:8090/media/file/" + dataComponents[1];
+                }
+                videoPlayer1.loop = true;
+                videoPlayer2.pause();
+                videoPlayer1.play();
+                videoLayer1.style.display = 'block';
+                videoLayer2.style.display = 'none';
+                imageLayer.style.display = 'none';
+                currentPlayer = 1;
+              }
             }
-            // videoPlayer.src = "http://localhost:8090/media/file/" + dataComponents[1];
-            // videoLayer.style.display = 'block';
-            // imageLayer.style.display = 'none';
-            // videoPlayer.loop = true;
-            // videoPlayer.play();
+
           } else if(dataComponents[0] == "pause"){
-            if(currentPlayer == 1){
-              videoPlayer1.pause();
-            } else {
-              videoPlayer2.pause();
-            }
+            videoPlayer1.pause();
+            videoPlayer2.pause();
           } else if(dataComponents[0] == "stop"){
             if(currentPlayer == 1){
               videoPlayer1.pause();
@@ -293,44 +256,47 @@
               videoPlayer2.pause();
               videoPlayer2.currentTime = 0;
             }
+
           } else if(dataComponents[0] == "rewind"){
             if(currentPlayer == 1){
               videoPlayer1.currentTime = 0;
             } else {
               videoPlayer2.currentTime = 0;
             }
+
           } else if(dataComponents[0] == "show"){
-            videoLayer.style.display = 'none';
+            videoLayer1.style.display = 'none';
+            videoLayer2.style.display = 'none';
             imageLayer.style.display = 'block';
             
             imageLayer.style.backgroundImage="url('" + "http://localhost:8090/media/file/" + dataComponents[1] + "')";
               
           } else if(dataComponents[0] == "bg"){
-              videoLayer.style.display = 'none';
+              videoLayer1.style.display = 'none';
+              videoLayer2.style.display = 'none';
               imageLayer.style.display = 'none';
               
               document.body.style.backgroundColor = dataComponents[1];
 
           } else if(dataComponents[0] == "view"){
               if(dataComponents[1] == 'bg'){
-                // videoLayer.style.display = 'none';
                 videoLayer1.style.display = 'none';
                 videoLayer2.style.display = 'none';
                 imageLayer.style.display = 'none';
               } else if (dataComponents[1] == 'video'){
-                // videoLayer.style.display = 'block';
-                videoLayer1.style.display = 'block';
-                videoLayer2.style.display = 'block';
+                if(currentPlayer == 1){
+                  videoLayer1.style.display = 'block';
+                } else {
+                  videoLayer2.style.display = 'block';
+                }
                 imageLayer.style.display = 'none';
               } else if (dataComponents[1] == 'image'){
-                // videoLayer.style.display = 'none';
                 videoLayer1.style.display = 'none';
                 videoLayer2.style.display = 'none';
                 imageLayer.style.display = 'block';
               } 
               
           } else if(dataComponents[0] == "pause"){
-            // videoPlayer.pause();
             videoPlayer1.pause();
             videoPlayer2.pause();
           }
