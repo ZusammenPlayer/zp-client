@@ -249,13 +249,13 @@
             videoPlayer1.pause();
             videoPlayer2.pause();
           } else if(dataComponents[0] == "stop"){
-            if(currentPlayer == 1){
+            
               videoPlayer1.pause();
               videoPlayer1.currentTime = 0;
-            } else {
+           
               videoPlayer2.pause();
               videoPlayer2.currentTime = 0;
-            }
+            
 
           } else if(dataComponents[0] == "rewind"){
             if(currentPlayer == 1){
