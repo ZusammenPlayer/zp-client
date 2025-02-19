@@ -250,11 +250,22 @@
             videoPlayer2.pause();
           } else if(dataComponents[0] == "stop"){
             
+            videoPlayer1.pause();
+            videoPlayer1.currentTime = 0;
+         
+            videoPlayer2.pause();
+            videoPlayer2.currentTime = 0;
+          
+
+          } else if(dataComponents[0] == "black"){
+            videoLayer1.style.display = 'none';
+              videoLayer2.style.display = 'none';
+              imageLayer.style.display = 'none';
               videoPlayer1.pause();
-              videoPlayer1.currentTime = 0;
-           
+              //videoPlayer1.currentTime = 0;
+          
               videoPlayer2.pause();
-              videoPlayer2.currentTime = 0;
+              //videoPlayer2.currentTime = 0;
             
 
           } else if(dataComponents[0] == "rewind"){
