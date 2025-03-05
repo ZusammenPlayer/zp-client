@@ -250,17 +250,13 @@
               videoPlayer2.loop = false;
               videoPlayer1.pause();
               videoPlayer2.play();
-              videoLayer2.style.display = 'block';
-              videoLayer1.style.display = 'none';
-              imageLayer.style.display = 'none';
+              show_videolayer2();
               currentPlayer = 2;
             } else {
               videoPlayer1.loop = false;
               videoPlayer2.pause();
               videoPlayer1.play();
-              videoLayer1.style.display = 'block';
-              videoLayer2.style.display = 'none';
-              imageLayer.style.display = 'none';
+              show_videolayer1();
               currentPlayer = 1;
             }
 
@@ -269,9 +265,7 @@
               if(videoPlayer1.src == "http://localhost:8090/media/file/" + dataComponents[1]){
                 videoPlayer1.currentTime = 0;
                 videoPlayer1.loop = false;
-                videoLayer1.style.display = 'block';
-                videoLayer2.style.display = 'none';
-                imageLayer.style.display = 'none';
+                show_videolayer1();
                 videoPlayer1.play();
               } else {
                 if(videoPlayer2.src != "http://localhost:8090/media/file/" + dataComponents[1]){
@@ -280,9 +274,7 @@
                 videoPlayer2.loop = false;
                 videoPlayer1.pause();
                 videoPlayer2.play();
-                videoLayer2.style.display = 'block';
-                videoLayer1.style.display = 'none';
-                imageLayer.style.display = 'none';
+                show_videolayer2();
                 currentPlayer = 2;
               }
             } else {
@@ -410,8 +402,10 @@
           } else if(dataComponents[0] == "pause"){
             videoPlayer1.pause();
             videoPlayer2.pause();
-          } else if(dataComponents[0] == "game"){
+          } else if(dataComponents[0] == "game-on"){
             gameLayer.style.display = 'flex';
+          } else if(dataComponents[0] == "game-off"){
+            gameLayer.style.display = 'none';
           }
         }
       })
