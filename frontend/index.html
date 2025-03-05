@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
     <script src="static/js/socket.io.js"></script>
+    <script src="static/js/mqtt.min.js"></script>
     <style type="text/css">
       #fsVideo {
         width: 100.2vw;
@@ -63,6 +64,82 @@
       body{
         overflow:hidden;
       }
+      #dschungel-vis-wrapper {
+        width: 100.2vw;
+        height: 100.2vh;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        position: absolute;
+        top: -0.1vh;
+        left: -0.1vw;
+        display: none;
+        z-index: 2000;
+        justify-content: center;
+        align-items: flex-start;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: 100% 100%;
+        background: url("static/media/bg_dschungel.jpg") no-repeat center
+            center/cover;
+        color: white;
+        font-family: Arial, sans-serif;
+        flex-direction: column;
+      }
+      #dschungel-vis {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-top: 10vh; /* Adjusted to place it in the upper third */
+      }
+      #battery-container {
+        width: 50%;
+        height: 200px;
+        border: 8px solid black;
+        border-radius: 20px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        position: absolute;
+        top: 150px;
+      }
+      #battery-tip {
+        width: 25px;
+        height: 80px;
+        background-color: black;
+        position: absolute;
+        right: -30px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 5px;
+      }
+      #battery-level {
+        height: 100%;
+        transition:
+            width 0.5s ease-in-out,
+            background-color 0.5s ease-in-out;
+        border-radius: 12px;
+        background-color: red;
+      }
+      #round-container {
+        position: absolute;
+        top: 150px;
+        height: 180px;
+        right: 100px;
+        text-align: center;
+        justify-content: center;
+        padding: 10px;
+        border: 8px solid black;
+        border-radius: 20px;
+        background-color: rgba(0, 255, 0, 1);
+      }
+      .round-text {
+        color: black;
+        font-size: 4em;
+        font-weight: bold;
+        margin-top: 30px;
+      }
     </style>
   </head>
   <body>
@@ -81,6 +158,19 @@
         <source src="static/media/black.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </div>
+    <div id="dschungel-vis-wrapper">
+      <div id="dschungel-vis">
+          <div id="battery-container">
+              <div id="battery-level" style="width: 0%"></div>
+              <div id="battery-tip"></div>
+          </div>
+          <div id="round-container">
+              <p class="round-text">
+                  Round<br /><span id="round-value">0</span>
+              </p>
+          </div>
+      </div>
+  </div>
     <div id="fsImage">
 
     </div>
@@ -95,10 +185,25 @@
       let videoPlayer2 = document.getElementById('videoPlayer2'); 
       let videoLayer1 = document.getElementById('fsVideo1'); 
       let videoLayer2 = document.getElementById('fsVideo2'); 
+      let gameLayer = document.getElementById('dschungel-vis-wrapper'); 
       let imageLayer = document.getElementById('fsImage'); 
 
       videoPlayer1.volume = 1.0; 
       videoPlayer2.volume = 1.0; 
+
+      function show_videolayer1(){
+        videoLayer1.style.display = 'block';
+        videoLayer2.style.display = 'none';
+        imageLayer.style.display = 'none';
+        gameLayer.style.display = 'none';
+      }
+
+      function show_videolayer2(){
+        videoLayer2.style.display = 'block';
+        videoLayer1.style.display = 'none';
+        imageLayer.style.display = 'none';
+        gameLayer.style.display = 'none';
+      }
 
       if(typeof(ID) != 'undefined'){
         document.getElementById('id').innerHTML=ID;
@@ -184,9 +289,7 @@
               if(videoPlayer2.src == "http://localhost:8090/media/file/" + dataComponents[1]){
                 videoPlayer2.currentTime = 0;
                 videoPlayer2.loop = false;
-                videoLayer2.style.display = 'block';
-                videoLayer1.style.display = 'none';
-                imageLayer.style.display = 'none';
+                show_videolayer2();
                 videoPlayer2.play();
               } else {
                 if(videoPlayer1.src != "http://localhost:8090/media/file/" + dataComponents[1]){
@@ -195,9 +298,7 @@
                 videoPlayer1.loop = false;
                 videoPlayer2.pause();
                 videoPlayer1.play();
-                videoLayer1.style.display = 'block';
-                videoLayer2.style.display = 'none';
-                imageLayer.style.display = 'none';
+                show_videolayer1();
                 currentPlayer = 1;
               }
             }
@@ -207,9 +308,7 @@
               if(videoPlayer1.src == "http://localhost:8090/media/file/" + dataComponents[1]){
                 videoPlayer1.currentTime = 0;
                 videoPlayer1.loop = true;
-                videoLayer1.style.display = 'block';
-                videoLayer2.style.display = 'none';
-                imageLayer.style.display = 'none';
+                show_videolayer1();
                 videoPlayer1.play();
               } else {
                 if(videoPlayer2.src != "http://localhost:8090/media/file/" + dataComponents[1]){
@@ -218,18 +317,14 @@
                 videoPlayer2.loop = true;
                 videoPlayer1.pause();
                 videoPlayer2.play();
-                videoLayer2.style.display = 'block';
-                videoLayer1.style.display = 'none';
-                imageLayer.style.display = 'none';
+                show_videolayer2();
                 currentPlayer = 2;
               }
             } else {
               if(videoPlayer2.src == "http://localhost:8090/media/file/" + dataComponents[1]){
                 videoPlayer2.currentTime = 0;
                 videoPlayer2.loop = true;
-                videoLayer2.style.display = 'block';
-                videoLayer1.style.display = 'none';
-                imageLayer.style.display = 'none';
+                show_videolayer2();
                 videoPlayer2.play();
               } else {
                 if(videoPlayer1.src != "http://localhost:8090/media/file/" + dataComponents[1]){
@@ -238,9 +333,7 @@
                 videoPlayer1.loop = true;
                 videoPlayer2.pause();
                 videoPlayer1.play();
-                videoLayer1.style.display = 'block';
-                videoLayer2.style.display = 'none';
-                imageLayer.style.display = 'none';
+                show_videolayer1();
                 currentPlayer = 1;
               }
             }
@@ -261,6 +354,7 @@
             videoLayer1.style.display = 'none';
               videoLayer2.style.display = 'none';
               imageLayer.style.display = 'none';
+              gameLayer.style.display = 'none';
               document.body.style.backgroundColor = '#000000';
               videoPlayer1.pause();
               //videoPlayer1.currentTime = 0;
@@ -279,6 +373,7 @@
           } else if(dataComponents[0] == "show"){
             videoLayer1.style.display = 'none';
             videoLayer2.style.display = 'none';
+            gameLayer.style.display = 'none';
             imageLayer.style.display = 'block';
             
             imageLayer.style.backgroundImage="url('" + "http://localhost:8090/media/file/" + dataComponents[1] + "')";
@@ -287,6 +382,7 @@
               videoLayer1.style.display = 'none';
               videoLayer2.style.display = 'none';
               imageLayer.style.display = 'none';
+              gameLayer.style.display = 'none';
               
               document.body.style.backgroundColor = dataComponents[1];
 
@@ -295,22 +391,27 @@
                 videoLayer1.style.display = 'none';
                 videoLayer2.style.display = 'none';
                 imageLayer.style.display = 'none';
+                gameLayer.style.display = 'none';
               } else if (dataComponents[1] == 'video'){
                 if(currentPlayer == 1){
                   videoLayer1.style.display = 'block';
                 } else {
                   videoLayer2.style.display = 'block';
                 }
+                gameLayer.style.display = 'none';
                 imageLayer.style.display = 'none';
               } else if (dataComponents[1] == 'image'){
                 videoLayer1.style.display = 'none';
                 videoLayer2.style.display = 'none';
+                gameLayer.style.display = 'none';
                 imageLayer.style.display = 'block';
               } 
               
           } else if(dataComponents[0] == "pause"){
             videoPlayer1.pause();
             videoPlayer2.pause();
+          } else if(dataComponents[0] == "game"){
+            gameLayer.style.display = 'flex';
           }
         }
       })
@@ -331,5 +432,72 @@
         }
       }); // false});
     </script>
+    <script>
+      const brokerHost = "brain.local";
+      const brokerPort = 8083;
+      const mqttUser = "everyuser";
+      const mqttPassword = "everyheart25";
+      const baseTopic = "every/objects/dschungel";
+      const chargeLevelTopic = `${baseTopic}/charge_level`;
+      const roundTopic = `${baseTopic}/round`;
+
+      const client = mqtt.connect(`ws://${brokerHost}:${brokerPort}`, {
+          username: mqttUser,
+          password: mqttPassword,
+      });
+
+      client.on("connect", () => {
+          console.log("Connected to MQTT broker");
+          client.subscribe(chargeLevelTopic, (err) => {
+              if (err) {
+                  console.error("Subscription error", err);
+              }
+          });
+          client.subscribe(roundTopic, (err) => {
+              if (err) {
+                  console.error("Subscription error", err);
+              }
+          });
+      });
+
+      client.on("message", (receivedTopic, message) => {
+          if (receivedTopic === chargeLevelTopic) {
+              let chargeLevel = parseInt(message.toString());
+              if (!isNaN(chargeLevel)) {
+                  chargeLevel = Math.max(0, Math.min(100, chargeLevel));
+                  const batteryLevelElement =
+                      document.getElementById("battery-level");
+                  batteryLevelElement.style.transition =
+                      "width 0.5s ease-in-out, background-color 0.5s ease-in-out";
+                  batteryLevelElement.style.width = chargeLevel + "%";
+
+                  // Non-linear color gradient transition
+                  let dim = 128;
+                  let per = 75;
+                  let red, green;
+                  if (chargeLevel < 75) {
+                      red = dim;
+                      green = Math.round(dim * (chargeLevel / per));
+                  } else if (chargeLevel < 100) {
+                      red = Math.round(
+                          dim * ((100 - chargeLevel) / 100 - per),
+                      );
+                      green = dim;
+                  } else {
+                      red = 0;
+                      green = 255;
+                  }
+                  batteryLevelElement.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
+              }
+          }
+          if (receivedTopic === roundTopic) {
+              let round = parseInt(message.toString());
+              if (!isNaN(round)) {
+                  document.getElementById("round-value").innerText =
+                      round;
+              }
+          }
+      });
+  </script>
   </body>
 </html>
